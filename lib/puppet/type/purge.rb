@@ -15,7 +15,24 @@ Puppet::Type.newtype(:purge) do
   [ :unless, :if ]. each do |param_name|
     newparam(param_name, :array_matching => :all) do
 
-      desc "Purge these resources #{param_name.to_s} any of the criterias match"
+      desc(<<-EOT)
+      Purge resources #{param_name.to_s} they meet the criteria.
+      Criteria is defined as an array of "parameter", "operator", and "value".
+      
+      Eg:
+         #{param_name.to_s} => [ 'name', '==', 'root' ]
+
+      Operators can support "!=","==","=~",">","<","<=","=>" as an argument
+      Value can be a string, integer or regex (without the enclosing slashes)
+
+      Multiple criterias can be nested in an array, eg:
+
+         #{param_name.to_s} => [ 
+           [ 'name', '==', 'root' ], [ 'name', '=~', 'admin.*' ]
+         ]
+      EOT
+
+
 
       validate do |cond|
         raise ArgumentError, "must be an array" unless cond.is_a?(Array)
