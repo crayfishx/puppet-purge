@@ -68,3 +68,18 @@ Multiple criterias can be nested in an array, eg:
   }
 ```
 
+
+## Safe usage notes
+
+If you've read this far I hope you have an idea of what purging actually does, just to clarify, it removes things from your system.  Further more, it removes things from your system that Puppet had no knowledge about so re-recreating them after the fact may not be so easy.   It's important to verify carefully the values that you pass into if and unless.   Consider this example;
+
+```puppet
+class foo ( Optional[Hash] $purge_opts = {} ) {
+  purge { 'user':
+    * => $purge_opts
+  }
+}
+```
+
+If you are using the above pattern to source the options from Hiera, you probably don't want to be doing things like allowing an empty default.  Consider what's going to happen if you tweak your hiera.yaml in such a way that stops this data from getting looked up?  Such errors normally result in things *not* being configured, in this case, it's quite the oposite.
+
