@@ -2,7 +2,29 @@ require 'puppet'
 
 Puppet::Type.newtype(:purge) do
 
-  @doc = "Purge all the things"
+  @doc=(<<-EOT)
+  This is a metatype to purge resources from the agent.  When run without 
+  parameters the purge type takes a resource type as a title.  The 
+  resource type must be one that has a provider that supports the instances
+  method (eg: package, user, yumrepo).  Any instances of the resource found
+  on the agent that are *not* in the catalog will be purged.
+
+  You can also add filter conditions to control the behaviour of purge 
+  using the if and unless parameters.
+
+  Eg:
+  To remove *all* users found on the system that are not present in the
+  catalog (caution!):
+ 
+   purge { 'user': }
+
+  To remove all users found on the system but not in the catalog, unless
+  the user has a UID below 500:
+ 
+   purge { 'user':
+    unless => [ 'uid', '<=', '500' ],
+   }
+  EOT
 
   newparam(:name) do
     desc "Name of the resource type to be purged"
