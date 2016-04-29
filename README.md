@@ -53,7 +53,7 @@ Criteria is defined as an array of "parameter", "operator", and "value".
    if => [ 'name', '==', 'root' ]
 ```
 
-Operators can support `!=`,`==`,`=~`,`>`,`<`,`<=` and `=>` as an arguments
+Operators can support `!=`,`==`,`=~`,`>`,`<`,`<=` and `>=` as an arguments
 
 Value can be a string, integer or regex (without the enclosing slashes) depending on the operator that you are using.  Note that '==' will always be a string comparrason whereas arethmetic operators such as '<=' will attempt to convert the values to integers before comparrison (if possible)
 

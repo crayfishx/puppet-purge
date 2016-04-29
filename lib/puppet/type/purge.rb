@@ -44,7 +44,7 @@ Puppet::Type.newtype(:purge) do
       Eg:
          #{param_name.to_s} => [ 'name', '==', 'root' ]
 
-      Operators can support "!=","==","=~",">","<","<=","=>" as an argument
+      Operators can support "!=","==","=~",">","<","<=",">=" as an argument
       Value can be a string, integer or regex (without the enclosing slashes)
 
       Multiple criterias can be nested in an array, eg:
@@ -77,7 +77,7 @@ Puppet::Type.newtype(:purge) do
         end
   
         cond.each do |param, operator, value|
-          unless ["!=","==","=~",">","<","<=","=>"].include?(operator)
+          unless ["!=","==","=~",">","<","<=",">="].include?(operator)
             raise ArgumentError, "invalid operator #{operator}"
           end
   
