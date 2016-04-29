@@ -32,6 +32,14 @@ You may also use regexes to filter, for example, to remove all unmanaged yumrepo
   }
 ```
 
+Theres also some other edge cases that can be solved with this pattern, when you need to make certain resources absent based on a flexible criteria (eg: you don't know the exact titles) you can't just declare them with ensure set to absent, so if you wanted to remove any package based on a pattern match of it's name you'd do
+
+```puppet
+  purge { 'package':
+    if => [ 'name', '=~', 'acme-devel-.*' ],
+  }
+```
+
 
 ## Parameters
 
