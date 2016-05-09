@@ -112,7 +112,7 @@ Puppet::Type.newtype(:purge) do
   # purge will evaluate the conditions given in if/unless
   def purge?(res_type)
 
-    res = res_type.to_resource.to_hash
+    res = res_type.to_hash
 
     if self[:unless]
       return false unless evaluate_resource(res, self[:unless])
@@ -132,11 +132,11 @@ Puppet::Type.newtype(:purge) do
     condition.select  {  |param, operator, value|
       case operator
       when "!=", "=="
-        res[param.to_sym].to_s.method(operator).(value)
+        res[param.to_sym].to_s.send(operator, value)
       when "=~"
         res[param.to_sym] =~ Regexp.new(value)
       when ">=", "<=", ">", "<"
-        res[param.to_sym].to_i.method(operator).(value.to_i)
+        res[param.to_sym].to_i.send(operator, value.to_i)
       end
     }.length == 0
   end
