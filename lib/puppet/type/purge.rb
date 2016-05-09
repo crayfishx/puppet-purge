@@ -112,7 +112,7 @@ Puppet::Type.newtype(:purge) do
   # purge will evaluate the conditions given in if/unless
   def purge?(res_type)
 
-    res = res_type.to_hash
+    res = res_type.to_resource.to_hash
 
     if self[:unless]
       return false unless evaluate_resource(res, self[:unless])
