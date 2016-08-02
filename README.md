@@ -106,10 +106,12 @@ The exception to this rule is using two separate resource declarations using the
 
 ```puppet
   purge { 'above 9000':
-    if     => [ 'uid', '>', '9000' ],
+    resource_type => 'user',
+    if => [ 'uid', '>', '9000' ],
   }
 
   purge { 'unless admin':
+    resource_type => 'user',
     unless => [ 'name', '==', 'admin' ],
   }
 ```
