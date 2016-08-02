@@ -6,21 +6,46 @@ purge = Puppet::Type.type(:purge)
 describe purge do
 
   before :each do
+
+
+    system_users = {
+      "present0" => "100",
+      "present1" => "101",
+      "present2" => "102",
+      "present3" => "103",
+      "present4" => "104",
+      "present5" => "105",
+      "root"     => "0",
+      "admin"    => "1",
+     }
+
+     catalog_users =  {
+       "present0" => "100",
+       "misc0"    => "900",
+     }
+
+
+    @system_resources = []
+    @catalog_resources = []
+
+    system_users.each { |username,uid|
+      res = Puppet::Type.type(:user).new(:name => username)
+      res.stubs(:to_resource).returns(res)
+      res.stubs(:to_hash).returns({:name => username, :uid => uid, :ensure => :present })
+      @system_resources << res 
+    }
+
+    catalog_users.each { |username,uid|
+      res = Puppet::Type.type(:user).new(:name => username)
+      res.provider.stubs(:uid).returns(uid)
+      @catalog_resources << res.to_resource 
+    }
+
     
-    @system_resources = [
-      Puppet::Type.type(:user).new(:name => 'kermit_123',  :uid => '501'),
-      Puppet::Type.type(:user).new(:name => 'deadman_123', :uid => '600'),
-      Puppet::Type.type(:user).new(:name => 'deadman_456', :uid => '601'),
-      Puppet::Type.type(:user).new(:name => 'deadman_789', :uid => '602'),
-    ]
-
-
-    @resources = [
-      Puppet::Type.type(:user).new(:name => 'kermit_123', :uid => '501'),
-      Puppet::Type.type(:user).new(:name => 'gonzo_123', :uid => '501')
-    ]
     @catalog = Puppet::Resource::Catalog.new
-    @resources.each { |r| @catalog.add_resource r }
+    @catalog_resources.each do |c|
+      @catalog.add_resource(c)
+    end
 
     Puppet::Type.type(:user).stubs(:instances).returns(@system_resources)
     
@@ -45,154 +70,126 @@ describe purge do
     end
 
 
-    it "should purge the deadman user" do
-      deadman = @output.select { |r| r.name == 'deadman_123' }[0]
-      expect(deadman[:ensure]).to eq(:absent)
+    it "should purge the present1,2,3,4,5 users" do
+      ['1','2','3','4','5'].each do |n|
+        ensure_param=@output.select { |r| r.name == "present#{n}" }[0][:ensure]
+        expect(ensure_param).to eq(:absent)
+      end
     end
 
     it "should not try and manage the user in the catalog" do
       users = @output.map { |r| r.name }
-      expect(users).not_to include('kermit_123')
-      expect(users).not_to include('gonzo_123')
+      expect(users).not_to include('present0')
+      expect(users).not_to include('misc0')
+    end
+
+  end
+
+
+  ## This fun array is made of
+  # [
+  #   [
+  #     [ 'field', 'operator', 'value' ],
+  #     [ if/unless preserve/purge ],
+  #     [ if/unless purge/preserve],
+  #   ]
+  # ]
+
+  test_matrix = [
+    [ 
+      [ "uid", "==", "102" ],
+      [ 'present1','present3','present4','present5','root','admin' ],
+      [ 'present2' ]
+    ],
+    [
+      [ "name", "=~", "present.*" ],
+      [ "root", "admin" ],
+      [ 'present1','present3','present4','present5'],
+    ],
+    [
+      [ "uid", ">=", "101" ],
+      [ "root", "admin" ],
+      [ 'present1','present3','present4','present5'],
+    ],
+    [
+      [ "uid", "<=", "101" ],
+      [ "present2", "present3", "present4", "present5" ],
+      [ "present1", "root", "admin" ],
+    ],
+    [
+      [ "uid", ">", "101" ],
+      [ "present1", "root", "admin" ],
+      [ "present2", 'present3','present4','present5'],
+    ],
+    [
+      [ "uid", "<", "100" ],
+      [ "present1", "present2", "present3", "present4", "present5" ],
+      [ "root", "admin" ],
+    ],
+  ]
+
+  test_matrix.each do |data_set|
+    criteria, set_a, set_b = data_set
+    [ :if, :unless ].each do |flag|
+      case flag
+      when :if
+        preserve_set = set_a
+        purge_set    = set_b
+      when :unless
+        preserve_set = set_b
+        purge_set = set_a
+      end
+
+
+      context "When running #{flag} with #{criteria[1]} #{criteria[2]}" do
+        before do
+          @purge = Puppet::Type.type(:purge).new(:name => 'user', flag => criteria )
+          @catalog.add_resource(@purge)
+          @output = @purge.generate
+          @users = @output.map { |r| r.name }
+        end
+
+
+        ## Add on present0 here, we never purge that user
+        [ 'present0', preserve_set ].flatten.each do |u|
+          it "should preserve user #{u}" do
+            expect(@users).not_to include(u)
+          end
+        end
+
+        purge_set.each do |u|
+          it "should purge user #{u}" do
+            expect(@users).to include(u)
+            res = @output.select { |r| r.name == u }[0]
+            expect(res[:ensure]).to eq(:absent)
+          end
+        end
+      end
     end
   end
 
-  context "When running with if filter == " do
+  context "When unless supersedes if" do
     before do
-      @purge = Puppet::Type.type(:purge).new(:name => 'user', :if =>  [ "uid", "==", "600" ] )
+      opts = {
+        :name => "user",
+        :if => [ "uid", "<", "100"],
+        :unless => [ "name", "==", "root" ]
+      }
+
+      @purge = Puppet::Type.type(:purge).new(opts)
       @catalog.add_resource(@purge)
       @output = @purge.generate
+      @users = @output.map { |r| r.name }
     end
 
-    it "should contain only the deadman_123 user" do
-      users = @output.map { |r| r.name }
-      expect(users).to eq( ['deadman_123'] )
+    it "should purge the admin user" do
+      expect(@users).to include("admin")
     end
 
-    it "should set ensure to absent for the deadman_123 user" do
-      expect(@output[0][:ensure]).to eq(:absent)
-    end
-  end
-
-
-  context "When running with if filter =~ " do
-    before do
-      @purge = Puppet::Type.type(:purge).new(:name => 'user', :if =>  [ "name", "=~", "dead.*_123" ] )
-      @catalog.add_resource(@purge)
-      @output = @purge.generate
-    end
-
-    it "should contain only the deadman_123 user" do
-      users = @output.map { |r| r.name }
-      expect(users).to eq( ['deadman_123'] )
-    end
-
-    it "should set ensure to absent for the deadman_123 user" do
-      expect(@output[0][:ensure]).to eq(:absent)
+    it "should not purge the root user" do
+      expect(@users).not_to include("root")
     end
   end
-
-
-  context "When running with if filter >= " do
-    before do
-      @purge = Puppet::Type.type(:purge).new(:name => 'user', :if =>  [ "uid", ">=", "602" ] )
-      @catalog.add_resource(@purge)
-      @output = @purge.generate
-    end
-
-    it "should contain only the deadman_789 user" do
-      users = @output.map { |r| r.name }
-      expect(users).to eq( ['deadman_789'] )
-    end
-
-    it "should set ensure to absent for the deadman_789 user" do
-      expect(@output[0][:ensure]).to eq(:absent)
-    end
-  end
-
-
-  context "When running with if filter <= " do
-    before do
-      @purge = Puppet::Type.type(:purge).new(:name => 'user', :if =>  [ "uid", "<=", "600" ] )
-      @catalog.add_resource(@purge)
-      @output = @purge.generate
-    end
-
-    it "should contain only the deadman_123 user" do
-      users = @output.map { |r| r.name }
-      expect(users).to eq( ['deadman_123'] )
-    end
-
-    it "should set ensure to absent for the deadman_123 user" do
-      expect(@output[0][:ensure]).to eq(:absent)
-    end
-  end
-
-
-  context "When running with if filter > " do
-    before do
-      @purge = Puppet::Type.type(:purge).new(:name => 'user', :if =>  [ "uid", ">", "601" ] )
-      @catalog.add_resource(@purge)
-      @output = @purge.generate
-    end
-
-    it "should contain only the deadman_789 user" do
-      users = @output.map { |r| r.name }
-      expect(users).to eq( ['deadman_789'] )
-    end
-
-    it "should set ensure to absent for the deadman_789 user" do
-      expect(@output[0][:ensure]).to eq(:absent)
-    end
-  end
-
-
-  context "When running with if filter < " do
-    before do
-      @purge = Puppet::Type.type(:purge).new(:name => 'user', :if =>  [ "uid", "<", "601" ] )
-      @catalog.add_resource(@purge)
-      @output = @purge.generate
-    end
-
-    it "should contain only the deadman_123 user" do
-      users = @output.map { |r| r.name }
-      expect(users).to eq( ['deadman_123'] )
-    end
-
-    it "should set ensure to absent for the deadman_123 user" do
-      expect(@output[0][:ensure]).to eq(:absent)
-    end
-  end
-
-
-  context "When running with unless filter == " do
-    before do
-      @purge = Puppet::Type.type(:purge).new(:name => 'user', :unless =>  [ "uid", "==", "600" ] )
-      @catalog.add_resource(@purge)
-      @output = @purge.generate
-    end
-
-    it "should not contain the deadman_123 user" do
-      users = @output.map { |r| r.name }
-      expect(users).to eq( ['deadman_456', 'deadman_789'] )
-    end
-
-  end
-
-
-  context "When running with unless filter =~ " do
-    before do
-      @purge = Puppet::Type.type(:purge).new(:name => 'user', :unless =>  [ "name", "=~", "dead.*_123" ] )
-      @catalog.add_resource(@purge)
-      @output = @purge.generate
-    end
-
-    it "should not contain the deadman_123 user" do
-      users = @output.map { |r| r.name }
-      expect(users).to eq( ['deadman_456', 'deadman_789'] )
-    end
-  end
-
-
+            
 end
 

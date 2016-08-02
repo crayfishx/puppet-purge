@@ -2,6 +2,7 @@ require 'puppet'
 
 Puppet::Type.newtype(:purge) do
 
+  
   @doc=(<<-EOT)
   This is a metatype to purge resources from the agent.  When run without 
   parameters the purge type takes a resource type as a title.  The 
@@ -26,7 +27,14 @@ Puppet::Type.newtype(:purge) do
    }
   EOT
 
-  newparam(:name) do
+  # By setting @isomorphic to false Puppet will allow duplicate namevars
+  # (not duplicate titles).  This allows for multiple purge resource types
+  # to be declared purging the same resource type with different criteria
+  #
+  @isomorphic = false
+
+  newparam(:resource_type) do
+    isnamevar
     desc "Name of the resource type to be purged"
     validate do |name|
       raise ArgumentError, "Unknown resource type #{name}" unless Puppet::Type.type(name)
@@ -92,8 +100,12 @@ Puppet::Type.newtype(:purge) do
 
   end
 
+  
+
   def generate
-    resource_instances = Puppet::Type.type(self[:name]).instances
+    klass = Puppet::Type.type(self[:name])
+    resource_instances = klass.instances
+
     purged_resources = []
 
     ## Don't try and perge things that are in the catalog

@@ -5,6 +5,11 @@ This is a metatype to purge resources from the agent. It behaves in a similar wa
 
 When run without parameters the purge type takes a resource type as a title.  The resource type must be one that has a provider that supports the instances method (eg: package, user, yumrepo).  Any instances of the resource found on the agent that are *not* in the catalog will be purged.  You can also add filter conditions to control the behaviour of purge using the if and unless parameters.
 
+## Differences to the `resources` resource
+
+* Allows fine tuning of which resources get purged
+* Not isomorphic, meaning multiple purge resource declarations can purge the same resource type
+
 ## Examples
 
 Eg:
@@ -68,6 +73,51 @@ Multiple criterias can be nested in an array, eg:
   }
 ```
 
+## Isomorphism
+
+Purge is not an isomorphic resource, that means that although the resource titles must be unique, you can declare seperate resource declarations to manage the same resource type by using the `resource_type` namevar
+
+```puppet
+  purge { 'all users in GID 999':
+    resource_type => 'user',
+    if => [ 'gid', '==', '999' ],
+  }
+
+  purge { 'all users above uid 5000':
+    resource_type => 'user',
+    if => [ 'uid', '>', '5000' ],
+  }
+```
+
+## Mixing `if` and `unless`
+
+If you have a mixture of if and unless, then it's important to understand the behaviour.  `unless` is evaluated first, and if a condition is found that matches `unless`, then the resource will not be purged regardless of what you have in `if`.   For example;
+
+```puppet
+  purge { 'user':
+    if     => [ 'uid', '>', '9000' ],
+    unless => [ 'name', '==', 'admin' ],
+  }
+```
+
+In this example, the admin user will never be purged regardless of it's UID  as it will be evaluated in the `unless` block, any other user that matches the `if` block will be purged.
+
+The exception to this rule is using two separate resource declarations using the non-isomorphic features of the type.  Each resource declaration evaluates independantly, so if you declare the following;
+
+```puppet
+  purge { 'above 9000':
+    if     => [ 'uid', '>', '9000' ],
+  }
+
+  purge { 'unless admin':
+    unless => [ 'name', '==', 'admin' ],
+  }
+```
+
+In the above example, if the user `admin` has a UID above 9000 it will be purged.  This is because the first resource declaration in this example is evaluated separately from the second and identifies the resource as purgable.  The second resource evaluates it as non-purgable, but that is a non-action (eg: do nothing)
+
+   
+    
 
 ## Safe usage notes
 
@@ -83,3 +133,11 @@ class foo ( Optional[Hash] $purge_opts = {} ) {
 
 If you are using the above pattern to source the options from Hiera, you probably don't want to be doing things like allowing an empty default.  Consider what's going to happen if you tweak your hiera.yaml in such a way that stops this data from getting looked up?  Such errors normally result in things *not* being configured, in this case, it's quite the oposite.
 
+
+## Author
+
+Written and maintained by Craig Dunn <craig@craigdunn.org> (@crayfishx)
+
+##
+
+Licensed under the Apache 2.0 license.  See LICENSE for details.
