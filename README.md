@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/crayfishx/puppet-purge.svg?branch=master)](https://travis-ci.org/crayfishx/puppet-purge)
 
 # purge 
 
