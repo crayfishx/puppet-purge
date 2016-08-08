@@ -5,7 +5,6 @@ gem 'puppet', puppetversion
 gem 'puppetlabs_spec_helper', '>= 0.8.2'
 gem 'puppet-lint', '>= 1.0.0'
 gem 'facter', '>= 1.7.0'
-gem 'rspec'
 gem 'mocha'
 
 # JSON must be 1.x on Ruby 1.9
@@ -19,5 +18,7 @@ if RUBY_VERSION < '1.9'
 
   # https://github.com/rspec/rspec-core/issues/1864
   gem 'rspec', '< 3.2.0'
+else
+  gem 'rspec'
 
 end
