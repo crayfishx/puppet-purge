@@ -16,4 +16,8 @@ end
 
 if RUBY_VERSION < '1.9'
   gem 'rake', '~> 0.9'
+
+  # https://github.com/rspec/rspec-core/issues/1864
+  gem 'rspec', '< 3.2.0'
+
 end
