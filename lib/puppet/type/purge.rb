@@ -112,7 +112,7 @@ Puppet::Type.newtype(:purge) do
     resource_instances.reject!{ |r| catalog.resource_refs.include? r.ref }
 
     ## Don't purge things that have been filtered with if/unless
-    resource_instances.select!{ |r| purge?(r) }
+    resource_instances = resource_instances.select { |r| purge?(r) }
 
     resource_instances.each do |res|
       res[:ensure] = :absent
