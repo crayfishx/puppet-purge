@@ -126,6 +126,13 @@ describe purge do
       [ "present1", "present2", "present3", "present4", "present5" ],
       [ "root", "admin" ],
     ],
+
+    ## Test for criteria value as array for multi-matching
+    [
+      [ "name", "==", [ "present2", "present3" ] ],
+      [ "present1", "present4", "present5" ],
+      [ "present2", "present3" ],
+    ]
   ]
 
   test_matrix.each do |data_set|

@@ -141,15 +141,17 @@ Puppet::Type.newtype(:purge) do
   # and returns true if any of the criteria match
   #
   def evaluate_resource(res,condition)
-    condition.select  {  |param, operator, value|
-      case operator
-      when "!=", "=="
-        res[param.to_sym].to_s.send(operator, value)
-      when "=~"
-        res[param.to_sym] =~ Regexp.new(value)
-      when ">=", "<=", ">", "<"
-        res[param.to_sym].to_i.send(operator, value.to_i)
-      end
+    condition.select  {  |param, operator, value_attr|
+      Array(value_attr).select { |value|
+        case operator
+        when "!=", "=="
+          res[param.to_sym].to_s.send(operator, value)
+        when "=~"
+          res[param.to_sym] =~ Regexp.new(value)
+        when ">=", "<=", ">", "<"
+          res[param.to_sym].to_i.send(operator, value.to_i)
+        end
+      }.length > 0
     }.length == 0
   end
 
