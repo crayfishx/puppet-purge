@@ -84,9 +84,9 @@ has the same effect as
 
 ```puppet
   if => [
-    [ 'name', '==', 'root' ]
-    [ 'name', '==', 'admin' ]
-    [ 'name', '==', 'wheel' ]
+    [ 'name', '==', 'root' ],
+    [ 'name', '==', 'admin' ],
+    [ 'name', '==', 'wheel' ],
   ]
 ```
 
