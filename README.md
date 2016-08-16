@@ -74,6 +74,32 @@ Multiple criterias can be nested in an array, eg:
   }
 ```
 
+The value of a criteria can also be an array, when an array, purge will repeat the test once for each element of the array, eg:
+
+```puppet
+  if => [ 'name', '==', [ 'admin', 'root', 'nobody' ]]
+```
+
+has the same effect as
+
+```puppet
+  if => [
+    [ 'name', '==', 'root' ],
+    [ 'name', '==', 'admin' ],
+    [ 'name', '==', 'wheel' ],
+  ]
+```
+
+This is fairly useful in puppet, especially puppet 3, where you want to exclude based on array, eg:
+
+```puppet
+   $exclude_users = [ 'root', 'admin', 'wheel' ]
+
+   purge { 'user':
+     unless => [ 'name', '==', $exclude_users ]
+   }
+```
+
 ## Isomorphism
 
 Purge is not an isomorphic resource, that means that although the resource titles must be unique, you can declare seperate resource declarations to manage the same resource type by using the `resource_type` namevar
