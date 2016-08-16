@@ -1,8 +1,12 @@
-#### 1.0.1
+## 1.1.0
+
+* Added support for array values to criteria https://github.com/crayfishx/puppet-purge/pull/3
+
+### 1.0.1
 
 * Ruby 1.8.7 support
 
-### 1.0.0
+# 1.0.0
 
 * Added many more spec tests
 * Namevar changed from `name` to `resource_type`
