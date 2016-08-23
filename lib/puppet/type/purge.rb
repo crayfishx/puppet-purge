@@ -184,11 +184,11 @@ Puppet::Type.newtype(:purge) do
       # Call the set method of the types property, this should trickle
       # down to the provider and set the desired state of the resource
       #
-      if Puppet.setting[:noop] || self[:noop]
-        Puppet.debug("Would have purged resource #{res.ref}")
+      if Puppet.settings[:noop] || self[:noop]
+        Puppet.debug("Would have purged resource #{res.ref} with #{manage_property} => #{state}  (noop)")
       else
         res.property(manage_property).set(state)
-        Puppet.debug("Purging resource #{res.ref}")
+        Puppet.debug("Purging resource #{res.ref} with #{manage_property} => #{state}")
       end
 
       # Record this in @purged_resources, this gives some visability
