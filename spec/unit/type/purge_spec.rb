@@ -64,7 +64,6 @@ describe purge do
 
     it "should do return an array" do
       expect(@output).to be_a(Array)
-      p @output
     end
 
     it "should only contain user resources" do
