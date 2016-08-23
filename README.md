@@ -10,6 +10,7 @@ When run without parameters the purge type takes a resource type as a title.  Th
 
 * Allows fine tuning of which resources get purged
 * Not isomorphic, meaning multiple purge resource declarations can purge the same resource type
+* Purging doesn't always mean destruction - you can use purge to set other attributes, not just `ensure => absent`
 
 ## Examples
 
