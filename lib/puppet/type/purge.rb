@@ -159,7 +159,6 @@ Puppet::Type.newtype(:purge) do
       err "Purge of resource type #{self[:name]} failed, #{manage_property} is not a valid property"
     end
 
-
     resource_instances = klass.instances
     metaparams = @parameters.select { |n, p| p.metaparam? }
 
@@ -178,26 +177,40 @@ Puppet::Type.newtype(:purge) do
       is == should
     }
 
+    if resource_instances.length > 0
+      # Here we instantiate a new Puppet::Resource::Catalog object
+      # that we can apply now.  We do this so we can be sure that Puppet 
+      # applies the changes while the purge resource type is being evaluated.
+      sub_catalog = Puppet::Resource::Catalog.new
+      apply_catalog = false
 
-    resource_instances.each do |res|
-
-      # Call the sync method of the types property, this should trickle
-      # down to the provider and set the desired state of the resource
-      #
-      if Puppet.settings[:noop] || self[:noop]
-        Puppet.debug("Would have purged resource #{res.ref} with #{manage_property} => #{state}  (noop)")
-      else
-        res.property(manage_property).should=(state)
-        res.property(manage_property).sync
-        Puppet.debug("Purging resource #{res.ref} with #{manage_property} => #{state}")
+      resource_instances.each do |res|
+  
+        # Call the sync method of the types property, this should trickle
+        # down to the provider and set the desired state of the resource
+        #
+        if Puppet.settings[:noop] || self[:noop]
+          Puppet.debug("Would have purged resource #{res.ref} with #{manage_property} => #{state}  (noop)")
+        else
+  
+          # Modify the property of the resource and add it to the sub catalog
+          # that we can apply now.  We do this so we can be sure that Puppet 
+          # applies the changes while the purge resource type is being evaluated.
+          #
+          res.property(manage_property).should=(state)
+          sub_catalog=Puppet::Resource::Catalog.new
+          sub_catalog.add_resource(res)
+          Puppet.debug("Purging resource #{res.ref} with #{manage_property} => #{state}")
+          apply_catalog ||= true
+        end
+  
+        # Record this in @purged_resources, this gives some visability
+        # in testing but also is used by ensurable to determine if this
+        # resource should signal change or not.
+        @purged_resources << res
       end
-
-      # Record this in @purged_resources, this gives some visability
-      # in testing but also is used by ensurable to determine if this
-      # resource should signal change or not.
-      @purged_resources << res
+      sub_catalog.apply if apply_catalog
     end
-    @purged_resources
     []
   end
 
