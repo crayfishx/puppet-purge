@@ -10,6 +10,7 @@ When run without parameters the purge type takes a resource type as a title.  Th
 
 * Allows fine tuning of which resources get purged
 * Not isomorphic, meaning multiple purge resource declarations can purge the same resource type
+* Purging doesn't always mean destruction - you can use purge to set other attributes, not just `ensure => absent`
 
 ## Examples
 
@@ -98,6 +99,33 @@ This is fairly useful in puppet, especially puppet 3, where you want to exclude 
    purge { 'user':
      unless => [ 'name', '==', $exclude_users ]
    }
+```
+
+## Advanced parameters
+
+### `manage_property`
+
+By default, purge will try and purge the resource using the `ensure` parameter.  This attribute allows you to override which property gets managed for the resource type.
+
+### `state`
+
+By default, purge will try and set the attribute defined in `manage_property` to `absent`. This behaviour can be overridden here to set the property with a different value.  When used in conjunction with `manage_property` you can define different behaviours rather than all out destruction of resources.  Eg:
+
+```puppet
+  # Don't delete unmnaged mounts, just make sure they are not mounted.
+
+  purge { 'mount':
+    'state' => 'unmounted',
+  }
+```
+
+```puppet
+  # If we find users that are not managed by puppet, then we should set the shell to nologin
+
+  purge { 'user':
+    'manage_property' => 'shell',
+    'state'           => '/bin/nologin',
+  }
 ```
 
 ## Isomorphism

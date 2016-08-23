@@ -29,9 +29,11 @@ describe purge do
     @catalog_resources = []
 
     system_users.each { |username,uid|
-      res = Puppet::Type.type(:user).new(:name => username)
+      res = Puppet::Type.type(:user).new(:name => username, :ensure => :present)
       res.stubs(:to_resource).returns(res)
+      res.property(:ensure).stubs(:retrieve).returns(:present)
       res.stubs(:to_hash).returns({:name => username, :uid => uid, :ensure => :present })
+      res.property(:ensure).stubs(:set).returns('')
       @system_resources << res 
     }
 
@@ -56,7 +58,8 @@ describe purge do
     before do
       @purge = Puppet::Type.type(:purge).new(:name => 'user')
       @catalog.add_resource(@purge)
-      @output = @purge.generate
+      @purge.generate
+      @output = @purge.purged_resources
     end
 
     it "should do return an array" do
@@ -72,8 +75,8 @@ describe purge do
 
     it "should purge the present1,2,3,4,5 users" do
       ['1','2','3','4','5'].each do |n|
-        ensure_param=@output.select { |r| r.name == "present#{n}" }[0][:ensure]
-        expect(ensure_param).to eq(:absent)
+        users = @output.map { |r| r.name }
+        expect(users).to include("present#{n}")
       end
     end
 
@@ -152,7 +155,8 @@ describe purge do
         before do
           @purge = Puppet::Type.type(:purge).new(:name => 'user', flag => criteria )
           @catalog.add_resource(@purge)
-          @output = @purge.generate
+          @purge.generate
+          @output = @purge.purged_resources
           @users = @output.map { |r| r.name }
         end
 
@@ -167,8 +171,6 @@ describe purge do
         purge_set.each do |u|
           it "should purge user #{u}" do
             expect(@users).to include(u)
-            res = @output.select { |r| r.name == u }[0]
-            expect(res[:ensure]).to eq(:absent)
           end
         end
       end
@@ -185,7 +187,8 @@ describe purge do
 
       @purge = Puppet::Type.type(:purge).new(opts)
       @catalog.add_resource(@purge)
-      @output = @purge.generate
+      @purge.generate
+      @output = @purge.purged_resources
       @users = @output.map { |r| r.name }
     end
 
