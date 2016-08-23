@@ -70,7 +70,7 @@ Puppet::Type.newtype(:purge) do
     desc <<-EOT
     The manage property parameter defined which property to manage on the resource.
     The property defined here will be set with the value of `state` and then
-    the `set` method is called on the resources property.
+    the `sync` method is called on the resources property.
     `manage_property` defaults to "ensure"
     EOT
 
@@ -80,7 +80,7 @@ Puppet::Type.newtype(:purge) do
   newparam(:state) do
     desc <<-EOT
     Define the desired state of the purged resources.  This sets the value of the
-    property defined in `manage_property` before `set` is called on the property.
+    property defined in `manage_property` before `sync` is called on the property.
     `state` defaults to "absent"
     EOT
 
@@ -181,13 +181,14 @@ Puppet::Type.newtype(:purge) do
 
     resource_instances.each do |res|
 
-      # Call the set method of the types property, this should trickle
+      # Call the sync method of the types property, this should trickle
       # down to the provider and set the desired state of the resource
       #
       if Puppet.settings[:noop] || self[:noop]
         Puppet.debug("Would have purged resource #{res.ref} with #{manage_property} => #{state}  (noop)")
       else
-        res.property(manage_property).set(state)
+        res.property(manage_property).should=(state)
+        res.property(manage_property).sync
         Puppet.debug("Purging resource #{res.ref} with #{manage_property} => #{state}")
       end
 
