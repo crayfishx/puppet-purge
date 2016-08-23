@@ -28,6 +28,12 @@ Puppet::Type.newtype(:purge) do
    }
   EOT
 
+
+  # The ensurable block is mostly to make sure that this resource type
+  # will enter a changed state when there are resources that have been
+  # purged, that signals to puppet that any refresh events associated
+  # with this resource, like notify, should be triggered.
+  #
   ensurable do
     defaultto(:purged)
     newvalue(:purgable)
@@ -169,14 +175,20 @@ Puppet::Type.newtype(:purge) do
     resource_instances = resource_instances.reject { |r|
       is = r.property(manage_property).retrieve
       should = is.is_a?(Symbol) ? state.to_sym : state
-      puts "PRESERVING #{r.name} #{is} == #{should}" if is == should
       is == should
     }
 
 
     resource_instances.each do |res|
+
+      # Call the set method of the types property, this should trickle
+      # down to the provider and set the desired state of the resource
       res.property(manage_property).set(state)
       Puppet.debug("Purging resource #{res.ref}")
+
+      # Record this in @purged_resources, this gives some visability
+      # in testing but also is used by ensurable to determine if this
+      # resource should signal change or not.
       @purged_resources << res
     end
     @purged_resources

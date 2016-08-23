@@ -100,6 +100,33 @@ This is fairly useful in puppet, especially puppet 3, where you want to exclude 
    }
 ```
 
+## Advanced parameters
+
+### `manage_property`
+
+By default, purge will try and purge the resource using the `ensure` parameter.  This attribute allows you to override which property gets managed for the resource type.
+
+### `state`
+
+By default, purge will try and set the attribute defined in `manage_property` to `absent`. This behaviour can be overridden here to set the property with a different value.  When used in conjunction with `manage_property` you can define different behaviours rather than all out destruction of resources.  Eg:
+
+```puppet
+  # Don't delete unmnaged mounts, just make sure they are not mounted.
+
+  purge { 'mount':
+    'state' => 'unmounted',
+  }
+```
+
+```puppet
+  # If we find users that are not managed by puppet, then we should set the shell to nologin
+
+  purge { 'user':
+    'manage_property' => 'shell',
+    'state'           => '/bin/nologin',
+  }
+```
+
 ## Isomorphism
 
 Purge is not an isomorphic resource, that means that although the resource titles must be unique, you can declare seperate resource declarations to manage the same resource type by using the `resource_type` namevar
