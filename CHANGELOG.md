@@ -1,7 +1,5 @@
 # 2.0.0
 
-
-
 * The purge resource now purges directly from the generate method by calling the sync method directly on a types properties,  rather than creating resources that spin off outside of the dependency graph.  This addresses [issue #5](https://github.com/crayfishx/puppet-purge/issues/5).  Adding `notify` to a purge resource will now notify the resource *after* the purges have occured.
 
 * Due to the above the output is slightly different, rather than seeing each resource purged in Puppet's notices, there is now just one notice...
