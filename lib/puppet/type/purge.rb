@@ -181,7 +181,7 @@ Puppet::Type.newtype(:purge) do
       # Here we instantiate a new Puppet::Resource::Catalog object
       # that we can apply now.  We do this so we can be sure that Puppet 
       # applies the changes while the purge resource type is being evaluated.
-      sub_catalog = Puppet::Resource::Catalog.new
+      sub_catalog = Puppet::Resource::Catalog.new('purge', catalog.environment_instance)
       apply_catalog = false
 
       resource_instances.each do |res|
