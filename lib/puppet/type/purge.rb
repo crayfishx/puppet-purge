@@ -178,40 +178,20 @@ Puppet::Type.newtype(:purge) do
     }
 
     if resource_instances.length > 0
-      # Here we instantiate a new Puppet::Resource::Catalog object
-      # that we can apply now.  We do this so we can be sure that Puppet 
-      # applies the changes while the purge resource type is being evaluated.
-      sub_catalog = Puppet::Resource::Catalog.new('purge', catalog.environment_instance)
-      apply_catalog = false
-
       resource_instances.each do |res|
-  
-        # Call the sync method of the types property, this should trickle
-        # down to the provider and set the desired state of the resource
-        #
-        if Puppet.settings[:noop] || self[:noop]
-          Puppet.debug("Would have purged resource #{res.ref} with #{manage_property} => #{state}  (noop)")
-        else
-  
-          # Modify the property of the resource and add it to the sub catalog
-          # that we can apply now.  We do this so we can be sure that Puppet 
-          # applies the changes while the purge resource type is being evaluated.
-          #
-          res.property(manage_property).should=(state)
-          sub_catalog=Puppet::Resource::Catalog.new
-          sub_catalog.add_resource(res)
-          Puppet.debug("Purging resource #{res.ref} with #{manage_property} => #{state}")
-          apply_catalog ||= true
+        res.property(manage_property).should=(state)
+
+        # Whatever metaparameters we have assigned we allocate to the
+        # purged resource, this sets the same relationships on the resource
+        # we are purging that we have in this resource.
+        @parameters.each do |name, param|
+          res[name] = param.value if param.metaparam?
         end
-  
-        # Record this in @purged_resources, this gives some visability
-        # in testing but also is used by ensurable to determine if this
-        # resource should signal change or not.
+        Puppet.debug("Purging resource #{res.ref} with #{manage_property} => #{state}")
         @purged_resources << res
       end
-      sub_catalog.apply if apply_catalog
     end
-    []
+    @purged_resources
   end
 
   # This method is called from the ensure block after generate() has

@@ -1,6 +1,6 @@
 {
   "name": "crayfishx-purge",
-  "version": "2.0.0",
+  "version": "1.1.0",
   "author": "crayfishx",
   "summary": "A puppet meta-type for purging resources based on criteria",
   "tags": [ "resources", "purge" ],
