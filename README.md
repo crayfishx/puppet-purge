@@ -59,7 +59,7 @@ Purge also has a Puppet class for reading in data from hiera and automatically c
 
 ### Compatibility summary
 
-|Puppet Version|Purge resource type|Configure from hiera|Dependencies|
+| Puppet Version | Purge resource type | Configure from hiera |Dependencies |
 | ------------- | ---------------------------------------- | ---------- |
 | 3.6           | Yes | Only with future parser(unsupported) | No |
 | 3.7           | Yes | Only with future parser(3.7.5+) | No |
