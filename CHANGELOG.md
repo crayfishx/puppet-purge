@@ -2,6 +2,8 @@
 
 ### New features
 
+* Purge resource now passes on it's metaparameters (notify, before...etc) to the resources it purges.  Note due to PUP-1963 this will not have an effect in Puppet < 4.3
+
 * Purge now supports two new attributes, `state` and `manage_property`.  `state` can be used to define a state other than `absent` for a resource, for example, to unmount mounts instead of deleting them from the config.  You can now use purge to set any desired state of a resource by combining `manage_property` with `state` to manage other properties.  See the README for more details.
 
 * Purge puppet class added to enable auto generation of purge resources from Hiera data
