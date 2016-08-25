@@ -12,6 +12,7 @@ When run without parameters the purge type takes a resource type as a title.  Th
 * Not isomorphic, meaning multiple purge resource declarations can purge the same resource type
 * Purging doesn't always mean destruction - you can use purge to set other attributes, not just `ensure => absent`
 
+
 ## Examples
 
 Eg:
@@ -126,6 +127,20 @@ By default, purge will try and set the attribute defined in `manage_property` to
     'manage_property' => 'shell',
     'state'           => '/bin/nologin',
   }
+```
+
+## Configuring from Hiera
+
+Purge contains a Puppet class to read in a hash of `resources` and automatically generate purge resources.  Eg:
+
+```yaml
+purge::resources:
+  user:
+    if: [ 'uid', '>', '500' ]
+```
+
+```
+include purge
 ```
 
 ## Isomorphism
