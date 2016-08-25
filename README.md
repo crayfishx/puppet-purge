@@ -47,6 +47,32 @@ Theres also some other edge cases that can be solved with this pattern, when you
   }
 ```
 
+## Compatibility and limitations.
+
+### Resource relationships
+
+Purge will set the same resource relationships on resources it purges as it has itself.   Eg: `purge { 'yumrepo': notify => Exec['yum_clean_all'] }` will cause all the purged resources to be in state, notifying the exec resource to run after. Due to [PUP-1963](https://tickets.puppetlabs.com/browse/PUP-1963) the resource relationships will be ignored in Puppet versions lower than 4.3.
+
+### Configuring from hiera
+
+Purge also has a Puppet class for reading in data from hiera and automatically creating the purge resources.  This requires Puppet 4.x or 3.7 + future parser
+
+### Compatibility summary
+
+|Puppet Version|Purge resource type|Configure from hiera|Dependencies|
+| ------------- | ---------------------------------------- | ---------- |
+| 3.6           | Yes | Only with future parser(unsupported) | No |
+| 3.7           | Yes | Only with future parser(3.7.5+) | No |
+| 3.8           | Yes | Only with future parser        | No |
+| 4.0           | Yes | Yes | No |
+| 4.1           | Yes | Yes | No |
+| 4.2           | Yes | Yes | No |
+| 4.3           | Yes | Yes | Yes |
+| 4.4           | Yes | Yes | Yes |
+| 4.5           | Yes | Yes | Yes |
+
+
+
 
 ## Parameters
 
