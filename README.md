@@ -49,13 +49,15 @@ Theres also some other edge cases that can be solved with this pattern, when you
 
 ## Compatibility and limitations.
 
+Purge is compatible with Puppet 3.6+. although there are some minor limitations between versions, these are explained below.
+
 ### Resource relationships
 
-Purge will set the same resource relationships on resources it purges as it has itself.   Eg: `purge { 'yumrepo': notify => Exec['yum_clean_all'] }` will cause all the purged resources to be in state, notifying the exec resource to run after. Due to [PUP-1963](https://tickets.puppetlabs.com/browse/PUP-1963) the resource relationships will be ignored in Puppet versions lower than 4.3.
+Purge will set the same resource relationships on resources it purges as it has itself.   Eg: `purge { 'yumrepo': notify => Exec['yum_clean_all'] }` will cause all the purged resources to be in state, notifying the exec resource to run after. Due to [PUP-1963](https://tickets.puppetlabs.com/browse/PUP-1963) the resource relationships will be ignored in Puppet versions lower than 4.3.  See "Dependencies" below;
 
 ### Configuring from hiera
 
-Purge also has a Puppet class for reading in data from hiera and automatically creating the purge resources.  This requires Puppet 4.x or 3.7 + future parser
+Purge also has a Puppet class for reading in data from hiera and automatically creating the purge resources.  This requires Puppet 4.x or 3.7 + future parser; See "Configure from hiera" below;
 
 ### Compatibility summary
 
