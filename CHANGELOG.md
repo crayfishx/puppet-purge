@@ -15,6 +15,12 @@
 ```
 Puppet::Error: Invalid value :obliterated. Valid values are present, absent, role.
 ```
+
+* The purge resource itself now signals a changed state when it purges resources, rather than remaining silent and unchanged.  This is useful output to make it obvious that purge has altered resources
+
+```
+Notice: /Stage[main]/Main/Purge[user]/ensure: ensure changed 'purgable' to 'purged'
+```
  
 ## 1.1.0
 
