@@ -141,7 +141,7 @@ By default, purge will try and purge the resource using the `ensure` parameter. 
 By default, purge will try and set the attribute defined in `manage_property` to `absent`. This behaviour can be overridden here to set the property with a different value.  When used in conjunction with `manage_property` you can define different behaviours rather than all out destruction of resources.  Eg:
 
 ```puppet
-  # Don't delete unmnaged mounts, just make sure they are not mounted.
+  # Don't delete unmanaged mounts, just make sure they are not mounted.
 
   purge { 'mount':
     'state' => 'unmounted',
