@@ -2,12 +2,10 @@ language: ruby
 script: "bundle exec rake spec SPEC_OPTS='--format documentation'"
 rvm:
   - 2.1
+  - jruby
 
 
 env:
-  - PUPPET_GEM_VERSION="~> 3.6.0"
-  - PUPPET_GEM_VERSION="~> 3.7.0"
-  - PUPPET_GEM_VERSION="~> 3.8.0"
   - PUPPET_GEM_VERSION="~> 4.1.0"
   - PUPPET_GEM_VERSION="~> 4.2.0"
   - PUPPET_GEM_VERSION="~> 4.3.0"
@@ -18,4 +16,6 @@ env:
   - PUPPET_GEM_VERSION="~> 4.8.0"
   - PUPPET_GEM_VERSION="~> 4.9.0"
   - PUPPET_GEM_VERSION="~> 4.10.0"
+
+
 
