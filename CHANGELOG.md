@@ -1,3 +1,7 @@
+## 1.2.1
+
+* Forge release, tests expanded to Puppet 5.x and docs updated.
+
 ## 1.2.0
 
 ### New features
