@@ -58,21 +58,20 @@ Purge will set the same resource relationships on resources it purges as it has 
 
 ### Configuring from hiera
 
-Purge also has a Puppet class for reading in data from hiera and automatically creating the purge resources.  This requires Puppet 4.x or 3.7 + future parser; See "Configure from hiera" below;
+Purge also has a Puppet class for reading in data from hiera and automatically creating the purge resources.  This requires Puppet 4.x or higher; See "Configure from hiera" below;
 
 ### Compatibility summary
 
 | Puppet Version | Purge resource type | Configure from hiera |Dependencies |
 | -------------- | ------------------- | -------------------- | ----------- |
-| 3.6           | Yes | Only with future parser(unsupported) | No |
-| 3.7           | Yes | Only with future parser(3.7.5+) | No |
-| 3.8           | Yes | Only with future parser        | No |
 | 4.0           | Yes | Yes | No |
 | 4.1           | Yes | Yes | No |
 | 4.2           | Yes | Yes | No |
 | 4.3           | Yes | Yes | Yes |
 | 4.4           | Yes | Yes | Yes |
-| 4.5           | Yes | Yes | Yes |
+| 4.5+           | Yes | Yes | Yes |
+| 5.0+           | Yes | Yes | Yes |
+
 
 
 
