@@ -226,7 +226,7 @@ Puppet::Type.newtype(:purge) do
   def evaluate_resource(res,condition)
     condition.select  {  |param, operator, value_attr|
       Array(value_attr).select { |value|
-        Array(param.to_sym).select { |p|
+        Array(res[param.to_sym]).select { |p|
           case operator
           when "!=", "=="
             p.to_s.send(operator, value)
@@ -235,8 +235,8 @@ Puppet::Type.newtype(:purge) do
           when ">=", "<=", ">", "<"
             p.to_i.send(operator, value.to_i)
           end
-        }
-      }.flatten.length > 0
+        }.length > 0
+      }.length > 0
     }.length == 0
   end
 
