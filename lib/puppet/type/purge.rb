@@ -226,14 +226,16 @@ Puppet::Type.newtype(:purge) do
   def evaluate_resource(res,condition)
     condition.select  {  |param, operator, value_attr|
       Array(value_attr).select { |value|
-        case operator
-        when "!=", "=="
-          res[param.to_sym].to_s.send(operator, value)
-        when "=~"
-          res[param.to_sym] =~ Regexp.new(value)
-        when ">=", "<=", ">", "<"
-          res[param.to_sym].to_i.send(operator, value.to_i)
-        end
+        Array(res[param.to_sym]).select { |p|
+          case operator
+          when "!=", "=="
+            p.to_s.send(operator, value)
+          when "=~"
+            p =~ Regexp.new(value)
+          when ">=", "<=", ">", "<"
+            p.to_i.send(operator, value.to_i)
+          end
+        }.length > 0
       }.length > 0
     }.length == 0
   end
