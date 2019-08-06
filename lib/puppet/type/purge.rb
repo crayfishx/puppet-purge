@@ -172,7 +172,11 @@ Puppet::Type.newtype(:purge) do
 
     ## Don't purge things that are already in sync
     resource_instances = resource_instances.reject { |r|
-      is = r.property(manage_property).retrieve
+      is = begin
+             r.property(manage_property).retrieve
+           rescue NoMethodError
+             r.retrieve[manage_property]
+           end
       should = is.is_a?(Symbol) ? state.to_sym : state
       is == should
     }
