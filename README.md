@@ -36,7 +36,7 @@ You may also use regexes to filter, for example, to remove all unmanaged yumrepo
 
 ```puppet
   purge { 'yumrepo':
-    unless => [ 'baseurl', '=~', 'http://my-satellite-server.*' ],
+    unless => [ 'baseurl', '=~', '^http://my-satellite-server' ],
   }
 ```
 
@@ -44,7 +44,7 @@ Theres also some other edge cases that can be solved with this pattern, when you
 
 ```puppet
   purge { 'package':
-    if => [ 'name', '=~', 'acme-devel-.*' ],
+    if => [ 'name', '=~', '^acme-devel-' ],
   }
 ```
 
@@ -98,7 +98,7 @@ Multiple criterias can be nested in an array, eg:
    purge { 'user':
      unless => [
        [ 'name', '==', 'root' ], 
-       [ 'name', '=~', 'admin.*' ]
+       [ 'name', '=~', '^admin' ]
      ]
   }
 ```
