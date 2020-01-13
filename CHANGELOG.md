@@ -1,3 +1,8 @@
+
+## 1.2.2
+
+* Dependency update and travis CI testing to support Puppet 6
+
 ## 1.2.1
 
 * Forge release, tests expanded to Puppet 5.x and docs updated.
