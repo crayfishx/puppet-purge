@@ -1,6 +1,7 @@
 require 'puppet'
 
 Puppet::Type.newtype(:purge) do
+  apply_to_all
 
   attr_reader :purged_resources
 
